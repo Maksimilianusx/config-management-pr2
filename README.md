@@ -28,3 +28,9 @@ The sample config.yaml analyzes package A in test mode.
 
 ## Future stages
 Real APT repository parsing, BFS traversal, load order and Mermaid visualization.
+
+## Stage 2 - APT Repository
+Download Ubuntu Packages.gz metadata via HTTP.
+Find a package by exact name and version.
+Extract direct Depends and Pre-Depends.
+Support local test repository mode.

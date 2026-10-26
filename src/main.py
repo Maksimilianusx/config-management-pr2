@@ -1,9 +1,25 @@
-﻿"""Package dependency analyzer configuration."""
+﻿"""Package dependency analyzer for Ubuntu APT."""
 
 from pathlib import Path
 from urllib.parse import urlparse
 
 import yaml
+
+if __package__:
+    from .apt_repository import (
+        download_index,
+        find_package,
+        get_direct_dependencies,
+    )
+else:
+    from apt_repository import (
+        download_index,
+        find_package,
+        get_direct_dependencies,
+    )
+
+
+PROJECT_DIR = Path(__file__).resolve().parent.parent
 
 
 def require_text(config, key):
@@ -15,7 +31,7 @@ def require_text(config, key):
 
 
 def validate_config(config):
-    """Validate all configuration parameters."""
+    """Validate all YAML configuration parameters."""
     if not isinstance(config, dict):
         raise ValueError("Configuration must be a YAML mapping")
 
@@ -47,7 +63,7 @@ def validate_config(config):
     if config["test_mode"]:
         path = Path(repository)
         if not path.is_absolute():
-            path = Path(__file__).resolve().parent.parent / path
+            path = PROJECT_DIR / path
         if not path.is_file():
             raise ValueError(f"Repository file not found: {path}")
     else:
@@ -59,9 +75,8 @@ def validate_config(config):
 
 
 def load_config():
-    """Read and validate the YAML configuration."""
-    project_dir = Path(__file__).resolve().parent.parent
-    config_path = project_dir / "config.yaml"
+    """Read and validate YAML configuration."""
+    config_path = PROJECT_DIR / "config.yaml"
 
     with config_path.open("r", encoding="utf-8-sig") as file:
         config = yaml.safe_load(file)
@@ -69,18 +84,64 @@ def load_config():
     return validate_config(config)
 
 
+def read_test_dependencies(repository, package):
+    """Read direct dependencies from a test repository."""
+    path = Path(repository)
+    if not path.is_absolute():
+        path = PROJECT_DIR / path
+
+    for line in path.read_text(
+        encoding="utf-8-sig"
+    ).splitlines():
+        name, separator, dependencies = line.partition(":")
+        if separator and name.strip() == package:
+            return dependencies.split()
+
+    raise ValueError(f"Test package {package} not found")
+
+
+def get_dependencies(config):
+    """Get direct dependencies from the selected repository."""
+    if config["test_mode"]:
+        return read_test_dependencies(
+            config["repository"],
+            config["package"],
+        )
+
+    index_text = download_index(config["repository"])
+
+    record = find_package(
+        index_text,
+        config["package"],
+        config["version"],
+    )
+
+    return get_direct_dependencies(record)
+
+
 def main():
-    """Display validated configuration parameters."""
+    """Display configuration and direct dependencies."""
     try:
         config = load_config()
+
         print("Package dependency analyzer")
         print("---------------------------")
 
         for key, value in config.items():
             print(f"{key}: {value}")
 
+        dependencies = get_dependencies(config)
+
+        print("\nDirect dependencies:")
+
+        if not dependencies:
+            print("(none)")
+        else:
+            for dependency in dependencies:
+                print(f"- {dependency}")
+
     except (OSError, ValueError, yaml.YAMLError) as error:
-        print(f"Configuration error: {error}")
+        print(f"Error: {error}")
         raise SystemExit(1) from error
 
 
