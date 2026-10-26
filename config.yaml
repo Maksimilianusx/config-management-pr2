@@ -1,5 +1,5 @@
-﻿package: "adduser"
-repository: "https://archive.ubuntu.com/ubuntu/dists/noble/main/binary-amd64/Packages.gz"
-test_mode: false
-version: "3.137ubuntu1"
+﻿package: "A"
+repository: "tests/repository.txt"
+test_mode: true
+version: "1.0"
 max_depth: 3

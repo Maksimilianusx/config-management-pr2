@@ -1,4 +1,4 @@
-﻿"""Package dependency analyzer for Ubuntu APT."""
+"""Package dependency analyzer for Ubuntu APT."""
 
 from pathlib import Path
 from urllib.parse import urlparse
@@ -6,12 +6,18 @@ from urllib.parse import urlparse
 import yaml
 
 if __package__:
+    from .dependency_graph import build_graph
+    from .apt_graph import create_dependency_lookup
+    from .dependency_graph import build_graph
     from .apt_repository import (
         download_index,
         find_package,
         get_direct_dependencies,
     )
 else:
+    from dependency_graph import build_graph
+    from apt_graph import create_dependency_lookup
+    from dependency_graph import build_graph
     from apt_repository import (
         download_index,
         find_package,
@@ -130,15 +136,29 @@ def main():
         for key, value in config.items():
             print(f"{key}: {value}")
 
-        dependencies = get_dependencies(config)
-
-        print("\nDirect dependencies:")
-
-        if not dependencies:
-            print("(none)")
+        if config["test_mode"]:
+            def lookup(name):
+                """Read dependencies from the test repository."""
+                return read_test_dependencies(
+                    config["repository"], name
+                )
         else:
-            for dependency in dependencies:
-                print(f"- {dependency}")
+            index_text = download_index(config["repository"])
+            lookup = create_dependency_lookup(
+                index_text,
+                config["package"],
+                config["version"],
+            )
+
+        graph = build_graph(
+            config["package"],
+            lookup,
+            config["max_depth"],
+        )
+
+        print("\nDependency graph:")
+        for package, deps in graph.items():
+            print(f"{package}: {', '.join(deps) or '(none)'}")
 
     except (OSError, ValueError, yaml.YAMLError) as error:
         print(f"Error: {error}")
@@ -147,3 +167,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
