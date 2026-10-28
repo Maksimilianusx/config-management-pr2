@@ -1,4 +1,4 @@
-﻿"""Tests for Ubuntu package metadata parsing."""
+"""Tests for Ubuntu package metadata parsing."""
 
 import unittest
 

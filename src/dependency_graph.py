@@ -1,4 +1,4 @@
-﻿"""Build dependency graphs using breadth-first search."""
+"""Build dependency graphs using breadth-first search."""
 
 from collections import deque
 

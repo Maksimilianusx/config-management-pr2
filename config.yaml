@@ -1,4 +1,4 @@
-﻿package: "A"
+package: "A"
 repository: "tests/repository.txt"
 test_mode: true
 version: "1.0"

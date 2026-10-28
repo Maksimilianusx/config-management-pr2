@@ -1,4 +1,4 @@
-﻿"""Additional tests for Ubuntu APT repository handling."""
+"""Additional tests for Ubuntu APT repository handling."""
 
 import gzip
 import io

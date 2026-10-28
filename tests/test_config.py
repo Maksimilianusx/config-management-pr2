@@ -1,4 +1,4 @@
-﻿"""Tests for YAML configuration validation."""
+"""Tests for YAML configuration validation."""
 
 import unittest
 

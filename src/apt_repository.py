@@ -1,4 +1,4 @@
-﻿"""Read package metadata from an Ubuntu APT repository."""
+"""Read package metadata from an Ubuntu APT repository."""
 
 import gzip
 from urllib.request import urlopen
