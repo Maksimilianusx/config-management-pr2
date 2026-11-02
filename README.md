@@ -34,3 +34,10 @@ Download Ubuntu Packages.gz metadata via HTTP.
 Find a package by exact name and version.
 Extract direct Depends and Pre-Depends.
 Support local test repository mode.
+
+## Stage 3 - Dependency Graph
+Build dependency graphs using iterative BFS.
+Support maximum traversal depth.
+Handle cyclic dependencies.
+Support test repositories with uppercase package names.
+Build graphs from Ubuntu APT repository metadata.
