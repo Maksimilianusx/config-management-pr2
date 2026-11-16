@@ -7,6 +7,7 @@ import yaml
 
 if __package__:
     from .dependency_graph import build_graph
+    from .visualize import show_mermaid
     from .install_order import installation_order
     from .apt_graph import create_dependency_lookup
     from .dependency_graph import build_graph
@@ -17,6 +18,7 @@ if __package__:
     )
 else:
     from dependency_graph import build_graph
+    from visualize import show_mermaid
     from install_order import installation_order
     from apt_graph import create_dependency_lookup
     from dependency_graph import build_graph
@@ -132,6 +134,20 @@ def get_dependencies(config):
     return get_direct_dependencies(record)
 
 
+def display_results(graph, package):
+    """Display dependencies, installation order and visualization."""
+    print("\nDependency graph:")
+    for name, deps in graph.items():
+        print(f"{name}: {', '.join(deps) or '(none)'}")
+
+    print("\nInstallation order:")
+    order = installation_order(graph, package)
+    for number, name in enumerate(order, 1):
+        print(f"{number}. {name}")
+
+    show_mermaid(graph)
+
+
 def main():
     """Display configuration and direct dependencies."""
     try:
@@ -163,14 +179,7 @@ def main():
             config["max_depth"],
         )
 
-        print("\nDependency graph:")
-        for package, deps in graph.items():
-            print(f"{package}: {', '.join(deps) or '(none)'}")
-
-        print("\nInstallation order:")
-        order = installation_order(graph, config["package"])
-        for number, name in enumerate(order, 1):
-            print(f"{number}. {name}")
+        display_results(graph, config["package"])
 
     except (OSError, ValueError, yaml.YAMLError) as error:
         print(f"Error: {error}")
