@@ -7,6 +7,7 @@ import yaml
 
 if __package__:
     from .dependency_graph import build_graph
+    from .install_order import installation_order
     from .apt_graph import create_dependency_lookup
     from .dependency_graph import build_graph
     from .apt_repository import (
@@ -16,6 +17,7 @@ if __package__:
     )
 else:
     from dependency_graph import build_graph
+    from install_order import installation_order
     from apt_graph import create_dependency_lookup
     from dependency_graph import build_graph
     from apt_repository import (
@@ -164,6 +166,11 @@ def main():
         print("\nDependency graph:")
         for package, deps in graph.items():
             print(f"{package}: {', '.join(deps) or '(none)'}")
+
+        print("\nInstallation order:")
+        order = installation_order(graph, config["package"])
+        for number, name in enumerate(order, 1):
+            print(f"{number}. {name}")
 
     except (OSError, ValueError, yaml.YAMLError) as error:
         print(f"Error: {error}")
